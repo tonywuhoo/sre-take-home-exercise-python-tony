@@ -36,7 +36,7 @@ This tool monitors the availability of multiple HTTP endpoints as defined in a Y
 
 ---
 
-## ▶️ Usage
+## Usage
 
 Run the monitoring script with a YAML config file:
 
@@ -48,9 +48,9 @@ Each run will:
 - Check all endpoints every 15 seconds
 - Evaluate response status and latency
 - Aggregate and log availability by domain
-- Create a timestamped log file (e.g. `health_check_2025-04-20_17-11-40.log`)
+- Create a timestamped log file (e.g. health_check_2025-04-20_17-11-40.log)
 
-The program will continue running until interrupted (`Ctrl+C`).
+The program will continue running until interrupted (Ctrl+C).
 
 ---
 
@@ -67,135 +67,62 @@ The configuration file should be in YAML format with the following structure:
   body: '{"key":"value"}'  # Optional, JSON string
 ```
 
-See `sample.yaml` for full examples.
+See sample.yaml for full examples.
 
 ---
 
-## 🔍 Implementation Notes
+## Changelog
 
 <details>
   <summary>Availability Criteria</summary>
+  <br>
 
-**Requirement:** Endpoint is considered “UP” if:
-- HTTP response status code is in the 200 range
-- Response is received in under 500 milliseconds
+  **Issue:** Did not enforce 500ms response latency.
+
+  **Fix:** Measured duration and included latency in success criteria.
 </details>
 
 <details>
-  <summary>Domain Aggregation</summary>
+  <summary>Domain Grouping</summary>
+  <br>
 
-Endpoints are grouped by domain using `urllib.parse.urlparse`, ignoring port numbers.
+  **Issue:** Used full URL instead of normalized domain.
+
+  **Fix:** Parsed domain using urlparse and stripped port/path.
 </details>
 
 <details>
-  <summary>Timing Precision</summary>
+  <summary>Cycle Accuracy</summary>
+  <br>
 
-Each check cycle duration is tracked, and `sleep()` is adjusted to ensure checks occur every 15 seconds, regardless of processing overhead.
+  **Issue:** Fixed sleep timing didn’t account for overhead.
+
+  **Fix:** Tracked cycle duration and adjusted sleep to stay aligned.
 </details>
 
 <details>
-  <summary>Log Output</summary>
+  <summary>Config Parsing</summary>
+  <br>
 
-Each run creates a log file with a timestamp-based filename:
+  **Issue:** No error handling or schema validation for YAML.
 
-```
-health_check_YYYY-MM-DD_HH-MM-SS.log
-```
-
-Both console output and file output use the same format:
-```
-2025-04-20 17:11:40,513 - INFO - [example.com] Availability: 75%
-```
+  **Fix:** Validated file, type, and required keys (name, url).
 </details>
 
 <details>
-  <summary>YAML Validation</summary>
+  <summary>Graceful Shutdown</summary>
+  <br>
 
-On load, the script verifies:
-- File exists and is valid YAML
-- Top-level structure is a list
-- Each item is a dictionary
-- Each entry has at least `name` (str) and `url` (str)
+  **Issue:** Script exited uncleanly on Ctrl+C.
+
+  **Fix:** Added KeyboardInterrupt handling with clean log.
 </details>
 
 <details>
-  <summary>Graceful Interrupt</summary>
+  <summary>Logging Format</summary>
+  <br>
 
-Interrupting with `Ctrl+C` exits cleanly with a final log statement.
-</details>
+  **Issue:** No file logs, no timestamps.
 
----
-
-## 🛠️ Issues Identified and Fixes Made
-
-<details>
-  <summary>Response Time Enforcement</summary>
-
-**Issue:** Initial version treated any 2xx response as “UP”, without validating latency.
-
-**Fix:** Measured request duration and enforced a 500ms upper limit on success.
-</details>
-
-<details>
-  <summary>Default HTTP Method</summary>
-
-**Issue:** Configuration required a method field explicitly.
-
-**Fix:** Defaulted to GET if no method is provided.
-</details>
-
-<details>
-  <summary>Domain Normalization</summary>
-
-**Issue:** Full URLs were used for grouping, potentially splitting stats unnecessarily.
-
-**Fix:** Parsed and grouped by domain only using `urlparse()`, ignoring ports and paths.
-</details>
-
-<details>
-  <summary>Cycle Duration Compensation</summary>
-
-**Issue:** Used a fixed 15-second sleep that didn’t account for request overhead.
-
-**Fix:** Tracked elapsed time and dynamically adjusted sleep to maintain true 15s intervals.
-</details>
-
-<details>
-  <summary>Body Payload Parsing</summary>
-
-**Issue:** YAML body strings were passed raw, causing malformed JSON in some cases.
-
-**Fix:** Added a parsing function that safely converts JSON strings to dictionaries.
-</details>
-
-<details>
-  <summary>Availability % Casting</summary>
-
-**Issue:** Percentages were rounded, sometimes displayed as floats.
-
-**Fix:** Used integer casting to drop decimal precision for cleaner logging.
-</details>
-
-<details>
-  <summary>YAML Schema Validation</summary>
-
-**Issue:** No safety checks were done on the config structure.
-
-**Fix:** Added validations for file presence, list type, and required fields (`name`, `url`).
-</details>
-
-<details>
-  <summary>Graceful Exit Handling</summary>
-
-**Issue:** Script crashed ungracefully on Ctrl+C.
-
-**Fix:** Added exception handling for `KeyboardInterrupt` with log output.
-</details>
-
-<details>
-  <summary>Timestamped Logging</summary>
-
-**Issue:** Logs were only printed to console without history or rotation.
-
-**Fix:** Introduced logging to a timestamped file in parallel with stdout.
+  **Fix:** Used logging.FileHandler with timestamped log file and stdout mirror.
 </details>
