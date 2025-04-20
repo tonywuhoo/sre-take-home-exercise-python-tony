@@ -74,55 +74,64 @@ See sample.yaml for full examples.
 ## Changelog
 
 <details>
-  <summary>Availability Criteria</summary>
+  <summary>Response Time Check</summary>
   <br>
 
-  **Issue:** Did not enforce 500ms response latency.
+  **Issue:** Only HTTP status was considered for success.
 
-  **Fix:** Measured duration and included latency in success criteria.
+  **Fix:** Response time is measured; success requires < 500ms.
 </details>
 
 <details>
-  <summary>Domain Grouping</summary>
+  <summary>Default HTTP Method</summary>
   <br>
 
-  **Issue:** Used full URL instead of normalized domain.
+  **Issue:** Missing method in YAML would cause failure.
 
-  **Fix:** Parsed domain using urlparse and stripped port/path.
+  **Fix:** If method is not specified, it defaults to GET.
 </details>
 
 <details>
-  <summary>Cycle Accuracy</summary>
+  <summary>Port Number Handling</summary>
   <br>
 
-  **Issue:** Fixed sleep timing didn’t account for overhead.
+  **Issue:** Availability was tracked per URL, not domain.
 
-  **Fix:** Tracked cycle duration and adjusted sleep to stay aligned.
+  **Fix:** Used urllib.parse to extract and normalize the domain.
 </details>
 
 <details>
-  <summary>Config Parsing</summary>
+  <summary>Timing Compensation</summary>
   <br>
 
-  **Issue:** No error handling or schema validation for YAML.
+  **Issue:** Sleep interval didn't account for processing time.
 
-  **Fix:** Validated file, type, and required keys (name, url).
+  **Fix:** Cycle duration is measured, and sleep is adjusted to maintain 15s total.
 </details>
 
 <details>
-  <summary>Graceful Shutdown</summary>
+  <summary>Body Payload Parsing</summary>
   <br>
 
-  **Issue:** Script exited uncleanly on Ctrl+C.
+  **Issue:** JSON in body field caused errors if passed as string.
 
-  **Fix:** Added KeyboardInterrupt handling with clean log.
+  **Fix:** Body string is parsed into a dictionary if needed.
+</details>
+
+<details>
+  <summary>YAML Validation</summary>
+  <br>
+
+  **Issue:** Invalid or missing fields could crash the script.
+
+  **Fix:** Added validation for file existence, structure, and endpoint existence.
 </details>
 
 <details>
   <summary>Logging Format</summary>
   <br>
 
-  **Issue:** No file logs, no timestamps.
+  **Issue:** No persistent logging.
 
-  **Fix:** Used logging.FileHandler with timestamped log file and stdout mirror.
+  **Fix:** Output is logged both to stdout and a timestamped file.
 </details>
