@@ -21,7 +21,7 @@ This tool monitors the availability of multiple HTTP endpoints as defined in a Y
 
    On Mac/Linux:
    ```bash
-   source .venv/bin/activate
+   source ./venv/bin/activate
    ```
 
    On Windows:
