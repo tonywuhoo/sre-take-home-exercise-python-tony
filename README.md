@@ -133,5 +133,5 @@ See sample.yaml for full examples.
 
   **Issue:** No persistent logging.
 
-  **Fix:** Output is logged both to stdout and a timestamped file.
+  **Fix:** Output is logged both to stdout and a timestamped file, and marked appropriately using INFO and WARNING
 </details>
