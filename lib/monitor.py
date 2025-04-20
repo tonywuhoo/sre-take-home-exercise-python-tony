@@ -34,6 +34,9 @@ def check_health(endpoint):
         if 200 <= response.status_code < 300 and response_time < 0.5:
             return "UP"
         else:
+            logger.warning(
+                f"[DOWN] {url} → status={response.status_code}, time={response_time:.2f}s"
+            )
             return "DOWN"
     except requests.RequestException as e:
         logger.error(f"[DOWN] {url} → Request failed: {e}")
@@ -55,7 +58,7 @@ def monitor_endpoints(config):
                 domain_stats[domain]["up"] += 1
 
         for domain, stats in domain_stats.items():
-            availability = int(100 * stats["up"] / stats["total"])
+            availability = int(100 * stats["up"] / stats["total"])  # Cast to int to drop decimals
             logger.info(f"[{domain}] Availability: {availability}%")
 
         elapsed = time.time() - cycle_start

@@ -1,6 +1,15 @@
-#venv
-.venv/*
+# Virtual environments
+.venv/
+venv/
+
+# Python bytecode
 __pycache__/
 
+# Logs
+logs/
+*.log
 
-
+# OS/editor-specific files
+.DS_Store
+.idea/
+.vscode/

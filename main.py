@@ -1,11 +1,15 @@
+import os
 import sys
 import logging
 from datetime import datetime
 from lib.config import load_config
 from lib.monitor import monitor_endpoints
 
+os.makedirs("logs", exist_ok=True)
+
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-log_filename = f"health_check_{timestamp}.log"
+log_filename = f"logs/health_check_{timestamp}.log"
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
